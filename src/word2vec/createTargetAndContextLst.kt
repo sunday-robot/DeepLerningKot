@@ -15,7 +15,7 @@ fun createTargetAndContextList(corpus: List<Int>, windowSize: Int = 1) =
                 context.add(corpus[t])
 
             // 後続の単語を登録する
-            for (t in (idx + 1).until(idx + windowSize))
+            for (t in (idx + 1).until(idx + 1 + windowSize))
                 context.add(corpus[t])
 
             TargetAndContext(corpus[idx], context)
