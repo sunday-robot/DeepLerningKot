@@ -4,9 +4,10 @@ import common.crossEntropyError
 import common.softMax
 
 class SimpleSkipGram(
-        val inLayer: MatMulLayer,
-        val outLayer1: MatMulLayer,
-        val outLayer2: MatMulLayer) {
+    val inLayer: MatMulLayer,
+    val outLayer1: MatMulLayer,
+    val outLayer2: MatMulLayer
+) {
     /**
      * 個々のバッチの処理前に呼び、内部変数を初期化する。
      */
@@ -49,6 +50,13 @@ class SimpleSkipGram(
         inLayer.backward(tmp)
     }
 
+    fun wordVectors(): Array<Array<Float>> {
+        return Array<Array<Float>>(inLayer.inputSize) { i ->
+            Array<Float>(inLayer.outputSize) { j ->
+                inLayer.weight(i, j)
+            }
+        }
+    }
 //    fun updateWeight(learningRate: Float) {
 //        inLayer.update(learningRate)
 //        outLayer1.update(learningRate)
