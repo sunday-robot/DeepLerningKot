@@ -7,10 +7,10 @@ import c5backpropergation.LearnableLayer
  */
 class MatMulLayer(
         parameter: Array<Float>,
-        private val inputSize: Int,
-        private val outputSize: Int) : LearnableLayer(parameter) {
+        val inputSize: Int,
+        val outputSize: Int) : LearnableLayer(parameter) {
 
-    private fun weight(i: Int, j: Int) = parameter(i * outputSize + j)
+    fun weight(i: Int, j: Int) = parameter(i * outputSize + j)
 
     private fun addWeightGradient(i: Int, j: Int, gradient: Float) {
         addParameterGradient(i * outputSize + j, gradient)
