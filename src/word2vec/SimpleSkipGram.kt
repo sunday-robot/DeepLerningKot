@@ -50,16 +50,11 @@ class SimpleSkipGram(
         inLayer.backward(tmp)
     }
 
-    fun wordVectors(): Array<Array<Float>> {
+    fun wordVectorList(): Array<Array<Float>> {
         return Array<Array<Float>>(inLayer.inputSize) { i ->
             Array<Float>(inLayer.outputSize) { j ->
                 inLayer.weight(i, j)
             }
         }
     }
-//    fun updateWeight(learningRate: Float) {
-//        inLayer.update(learningRate)
-//        outLayer1.update(learningRate)
-//        outLayer2.update(learningRate)
-//    }
 }
