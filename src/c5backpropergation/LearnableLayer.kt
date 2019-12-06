@@ -47,5 +47,6 @@ abstract class LearnableLayer(
 
     fun getAllParameter() = parameter
 
-    fun getAllParameterGradient() = parameterGradientSum!! / batchCount.toFloat()
+//    fun getAllParameterGradient() = parameterGradientSum!! / batchCount.toFloat()
+    fun getAllParameterGradient() = parameterGradientSum!!
 }
