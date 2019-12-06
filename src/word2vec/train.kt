@@ -17,6 +17,9 @@ fun main() {
     // コーパス(テキストデータを、ボキャブラリー内の単語のインデックス値のリストにしたもの)を、作成する。
     val (vocabulary, corpus) = createVocabularyAndCorpus(words)
 
+	println("語彙数 = ${vocabulary.size}")
+	println("単語数 = ${corpus.size}")
+
     // 学習用データ(単語と、その手前及び後の単語のセットのセット)
     val targetAndContextList = createTargetAndContextList(corpus, 1)
 
