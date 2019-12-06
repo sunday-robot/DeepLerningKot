@@ -2,14 +2,15 @@ package word2vec
 
 import common.createShuffledIndices
 import common.log.log
-import common.toOnehot
 import kotlin.math.min
 
 fun main() {
     val wordVectorSize = 20
 //    val wordVectorSize = 5
 //    val wordVectorSize = 2
-    val batchSize = 3
+    val batchSize = 300
+//    val batchSize = 30
+//    val batchSize = 3
     val epochCount = 1000
 
     // テキストデータから、単語のリストを作成する。
@@ -26,15 +27,10 @@ fun main() {
     // 学習用データ(単語と、その手前及び後の単語のセットのセット)
     val targetAndContextList = createTargetAndContextList(corpus, 1)
 
-    // one-hot値のテーブルを作成する
-    val oneHotList = mutableListOf<Array<Float>>()
-    for (i in 0.until(vocabulary.size))
-        oneHotList.add(toOnehot(i, vocabulary.size))
-
     // word2vecのニューラルネットワークおよびオプティマイザーを生成する
     np.random.reset(0L)
-    val network = createSimpleSkipGram(vocabulary.size, wordVectorSize)
-    val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabulary.size, wordVectorSize)
+    val network = createSimpleSkipGram2(vocabulary.size, wordVectorSize)
+    val optimizer = createSimpleSkipGramAndAdamOptimizer2(vocabulary.size, wordVectorSize)
 
     // word2vecのニューラルネットワークの学習
     for (i in 0.until(epochCount)) {    // エポック数分のループ
@@ -45,18 +41,14 @@ fun main() {
             for (k in 0.until(bs)) {
                 val idx = trainDataIndices[j + k]
                 val tc = targetAndContextList[idx]
-                val target = oneHotList[tc.target]
-                val context = listOf(oneHotList[tc.context[0]], oneHotList[tc.context[1]])
-                network.gradient(context, target)   // 重み値の微分値を求め、累積する
+                network.gradient(tc.context, tc.target)   // 重み値の微分値を求め、累積する
             }
             optimizer.update(network)   // ネ重み値の微分値の累積値に従い、重み値を更新する
         }
         var loss = 0f
         targetAndContextList.indices.forEach {
             val tc = targetAndContextList[it]
-            val target = oneHotList[tc.target]
-            val context = listOf(oneHotList[tc.context[0]], oneHotList[tc.context[1]])
-            loss += network.loss(target, context)
+            loss += network.loss(tc.target, tc.context)
         }
         log("${i}: loss = ${loss}")
     }
