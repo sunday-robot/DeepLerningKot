@@ -9,7 +9,7 @@ fun createCorpus(words: List<String>, vocabulary: Vocabulary): List<Int> {
 fun main(args: Array<String>) {
     args.forEach {
         val words = createWordsFromTextFile(it)
-        val vocabulary = wordsToVocabulary(words)
+        val vocabulary = createVocabulary(words)
         val corpus = createCorpus(words, vocabulary)
         corpus.forEach {
             println("${it}:${vocabulary.word((it))}")

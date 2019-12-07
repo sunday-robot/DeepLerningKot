@@ -5,13 +5,14 @@ import common.log.log
 import kotlin.math.min
 
 fun main() {
-    val wordVectorSize = 20
+//    val wordVectorSize = 20
 //    val wordVectorSize = 5
-//    val wordVectorSize = 2
+    val wordVectorSize = 2
     val batchSize = 300
 //    val batchSize = 30
 //    val batchSize = 3
-    val epochCount = 1000
+//    val epochCount = 1000
+    val epochCount = 0
 
     // テキストデータから、単語のリストを作成する。
     val wordList = createWordsFromTextFile("alices_adventures_in_wonderland.txt")
@@ -58,7 +59,7 @@ fun main() {
 
     // 単語ベクトルの値をコンソールに出力する。(Excelに取り込みやすいように、TSV形式で出力する)
     for (i in 0.until(vocabulary.size)) {
-        print("${i}\t ${vocabulary.word(i)}")
+        print("${i}\t${vocabulary.word(i)}\t${vocabulary.count(i)}")
         for (e in wordVectorList[i])
             print("\t${e}")
         println()
