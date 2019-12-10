@@ -5,49 +5,43 @@ import common.softMax
 
 class SimpleSkipGram2(
     val inLayer: MatMulLayer2,
-    val outLayer1: MatMulLayer,
-    val outLayer2: MatMulLayer
+    val outLayers: Array<MatMulLayer>
 ) {
     /**
      * 個々のバッチの処理前に呼び、内部変数を初期化する。
      */
     fun reset() {
         inLayer.reset()
-        outLayer1.reset()
-        outLayer2.reset()
+        outLayers.forEach { it.reset() }
     }
 
     fun predict(x: Int): List<Array<Float>> {
         var tmp = inLayer.evaluate(x)
-        val tmp1 = outLayer1.evaluate(tmp)
-        val tmp2 = outLayer2.evaluate(tmp)
-        val c1 = softMax(tmp1)
-        val c2 = softMax(tmp2)
-        return listOf(c1, c2)
+        return List<Array<Float>>(outLayers.size) {
+            val tmp1 = outLayers[it].evaluate(tmp)
+            softMax(tmp1)
+        }
     }
 
     fun loss(x: Int, t: List<Int>): Float {
         val y = predict(x)
-        val l1 = crossEntropyError2(y[0], t[0])
-        val l2 = crossEntropyError2(y[1], t[1])
-        return l1 + l2;
+        var l = 0f
+        y.indices.forEach { l += crossEntropyError2(y[it], t[it]) }
+        return l;
     }
 
     fun gradient(t: List<Int>, x: Int) {
-        var tmp = inLayer.forward(x)
-        var tmp1 = outLayer1.forward(tmp)
-        var tmp2 = outLayer2.forward(tmp)
-        val y1 = softMax(tmp1)
-        val y2 = softMax(tmp2)
+        val ilf = inLayer.forward(x)
+        val olbSum = Array<Float>(inLayer.outputSize) {0f};
+        outLayers.indices.forEach {
+            val olf = softMax(outLayers[it].forward(ilf))
+            // ロス値の計算はしなくてもdYは計算可能(それがsoftmaxを使用する理由にもなっているらしい)
 
-        // ロス値の計算はしなくてもdYは計算可能(それがsoftmaxを使用する理由にもなっているらしい)
-
-        y1[t[0]] -= 1.0f
-        y2[t[1]] -= 1.0f
-        tmp1 = outLayer1.backward(y1)
-        tmp2 = outLayer2.backward(y2)
-        tmp = Array(tmp1.size) { i -> tmp1[i] + tmp2[i] }
-        inLayer.backward(tmp)
+            olf[t[it]] -= 1f
+            val olb = outLayers[it].backward(olf)
+            olbSum.indices.forEach { olbSum[it] += olb[it] }
+        }
+        inLayer.backward(olbSum)
     }
 
     fun wordVectorList(): Array<Array<Float>> {

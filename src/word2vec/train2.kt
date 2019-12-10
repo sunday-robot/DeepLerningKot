@@ -5,14 +5,17 @@ import common.log.log
 import kotlin.math.min
 
 fun main() {
+    val wordVectorSize = 200    // 本家word2vecのデフォルト値は200次元とのこと
 //    val wordVectorSize = 20
 //    val wordVectorSize = 5
-    val wordVectorSize = 2
+//    val wordVectorSize = 2
+    val windowSize = 5    // 本家word2vecのデフォルト値は5とのこと
+//    val windowSize = 1
     val batchSize = 300
 //    val batchSize = 30
 //    val batchSize = 3
-//    val epochCount = 1000
-    val epochCount = 0
+    val epochCount = 1000
+//    val epochCount = 0
 
     // テキストデータから、単語のリストを作成する。
     val wordList = createWordsFromTextFile("alices_adventures_in_wonderland.txt")
@@ -26,12 +29,12 @@ fun main() {
     println("単語数 = ${corpus.size}")
 
     // 学習用データ(単語と、その手前及び後の単語のセットのセット)
-    val targetAndContextList = createTargetAndContextList(corpus, 1)
+    val targetAndContextList = createTargetAndContextList(corpus, windowSize)
 
     // word2vecのニューラルネットワークおよびオプティマイザーを生成する
     np.random.reset(0L)
-    val network = createSimpleSkipGram2(vocabulary.size, wordVectorSize)
-    val optimizer = createSimpleSkipGramAndAdamOptimizer2(vocabulary.size, wordVectorSize)
+    val network = createSimpleSkipGram2(vocabulary.size, wordVectorSize, windowSize)
+    val optimizer = createSimpleSkipGramAndAdamOptimizer2(vocabulary.size, wordVectorSize, windowSize)
 
     // word2vecのニューラルネットワークの学習
     for (i in 0.until(epochCount)) {    // エポック数分のループ
