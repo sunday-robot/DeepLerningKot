@@ -4,16 +4,18 @@ import c5backpropergation.LearnableLayer
 
 class SimpleSkipGramOptimizer(
     private val inLayerOptimizer: AdamOptimizer,
-    private val outLayerOptimizer1: AdamOptimizer,
-    private val outLayerOptimizer2: AdamOptimizer
+    private val outLayerOptimizers: Array<AdamOptimizer>
 ) {
     fun update(network: SimpleSkipGram) {
         update(inLayerOptimizer, network.inLayer)
-        update(outLayerOptimizer1, network.outLayer1)
-        update(outLayerOptimizer2, network.outLayer2)
+        outLayerOptimizers.indices.forEach { update(outLayerOptimizers[it], network.outLayers[it]) }
     }
 }
 
 private fun update(optimizer: AdamOptimizer, layer: LearnableLayer) {
+    optimizer.update(layer.getAllParameter(), layer.getAllParameterGradient())
+}
+
+private fun update(optimizer: AdamOptimizer, layer: LearnableOneHotLayer) {
     optimizer.update(layer.getAllParameter(), layer.getAllParameterGradient())
 }

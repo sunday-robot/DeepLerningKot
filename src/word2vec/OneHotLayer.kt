@@ -1,6 +1,10 @@
 package word2vec
 
-abstract class Layer2 {
+/**
+ * one-hotレイヤー
+ * 入力が通常のベクトルではなく、one-hotのインデックスとなっているレイヤー
+ */
+abstract class OneHotLayer {
     private var x: Int = 0
 
     /**

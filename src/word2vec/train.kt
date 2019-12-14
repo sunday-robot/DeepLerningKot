@@ -2,15 +2,20 @@ package word2vec
 
 import common.createShuffledIndices
 import common.log.log
-import common.toOnehot
 import kotlin.math.min
 
 fun main() {
-    val wordVectorSize = 20
+    val wordVectorSize = 200    // 本家word2vecのデフォルト値は200次元とのこと
+//    val wordVectorSize = 20
 //    val wordVectorSize = 5
 //    val wordVectorSize = 2
-    val batchSize = 3
+    val windowSize = 5    // 本家word2vecのデフォルト値は5とのこと
+//    val windowSize = 1
+    val batchSize = 300
+//    val batchSize = 30
+//    val batchSize = 3
     val epochCount = 1000
+//    val epochCount = 0
 
     // テキストデータから、単語のリストを作成する。
     val wordList = createWordsFromTextFile("alices_adventures_in_wonderland.txt")
@@ -24,17 +29,12 @@ fun main() {
     println("単語数 = ${corpus.size}")
 
     // 学習用データ(単語と、その手前及び後の単語のセットのセット)
-    val targetAndContextList = createTargetAndContextList(corpus, 1)
-
-    // one-hot値のテーブルを作成する
-    val oneHotList = mutableListOf<Array<Float>>()
-    for (i in 0.until(vocabulary.size))
-        oneHotList.add(toOnehot(i, vocabulary.size))
+    val targetAndContextList = createTargetAndContextList(corpus, windowSize)
 
     // word2vecのニューラルネットワークおよびオプティマイザーを生成する
     np.random.reset(0L)
-    val network = createSimpleSkipGram(vocabulary.size, wordVectorSize)
-    val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabulary.size, wordVectorSize)
+    val network = createSimpleSkipGram(vocabulary.size, wordVectorSize, windowSize)
+    val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabulary.size, wordVectorSize, windowSize)
 
     // word2vecのニューラルネットワークの学習
     for (i in 0.until(epochCount)) {    // エポック数分のループ
@@ -45,18 +45,14 @@ fun main() {
             for (k in 0.until(bs)) {
                 val idx = trainDataIndices[j + k]
                 val tc = targetAndContextList[idx]
-                val target = oneHotList[tc.target]
-                val context = listOf(oneHotList[tc.context[0]], oneHotList[tc.context[1]])
-                network.gradient(context, target)   // 重み値の微分値を求め、累積する
+                network.gradient(tc.context, tc.target)   // 重み値の微分値を求め、累積する
             }
             optimizer.update(network)   // ネ重み値の微分値の累積値に従い、重み値を更新する
         }
         var loss = 0f
         targetAndContextList.indices.forEach {
             val tc = targetAndContextList[it]
-            val target = oneHotList[tc.target]
-            val context = listOf(oneHotList[tc.context[0]], oneHotList[tc.context[1]])
-            loss += network.loss(target, context)
+            loss += network.loss(tc.target, tc.context)
         }
         log("${i}: loss = ${loss}")
     }
@@ -66,7 +62,7 @@ fun main() {
 
     // 単語ベクトルの値をコンソールに出力する。(Excelに取り込みやすいように、TSV形式で出力する)
     for (i in 0.until(vocabulary.size)) {
-        print("${i}\t ${vocabulary.word(i)}")
+        print("${i}\t${vocabulary.word(i)}\t${vocabulary.count(i)}")
         for (e in wordVectorList[i])
             print("\t${e}")
         println()

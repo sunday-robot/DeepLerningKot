@@ -4,50 +4,44 @@ import common.crossEntropyError
 import common.softMax
 
 class SimpleSkipGram(
-    val inLayer: MatMulLayer,
-    val outLayer1: MatMulLayer,
-    val outLayer2: MatMulLayer
+    val inLayer: MatMulOneHotLayer,
+    val outLayers: Array<MatMulLayer>
 ) {
     /**
      * 個々のバッチの処理前に呼び、内部変数を初期化する。
      */
     fun reset() {
         inLayer.reset()
-        outLayer1.reset()
-        outLayer2.reset()
+        outLayers.forEach { it.reset() }
     }
 
-    fun predict(x: Array<Float>): List<Array<Float>> {
-        var tmp = inLayer.evaluate(x)
-        val tmp1 = outLayer1.evaluate(tmp)
-        val tmp2 = outLayer2.evaluate(tmp)
-        val c1 = softMax(tmp1)
-        val c2 = softMax(tmp2)
-        return listOf(c1, c2)
+    private fun predict(x: Int): List<Array<Float>> {
+        val tmp = inLayer.evaluate(x)
+        return List<Array<Float>>(outLayers.size) {
+            val tmp1 = outLayers[it].evaluate(tmp)
+            softMax(tmp1)
+        }
     }
 
-    fun loss(x: Array<Float>, t: List<Array<Float>>): Float {
+    fun loss(x: Int, t: List<Int>): Float {
         val y = predict(x)
-        val l1 = crossEntropyError(y[0], t[0])
-        val l2 = crossEntropyError(y[1], t[1])
-        return l1 + l2;
+        var l = 0f
+        y.indices.forEach { l += crossEntropyError2(y[it], t[it]) }
+        return l;
     }
 
-    fun gradient(t: List<Array<Float>>, x: Array<Float>) {
-        var tmp = inLayer.forward(x)
-        var tmp1 = outLayer1.forward(tmp)
-        var tmp2 = outLayer2.forward(tmp)
-        val y1 = softMax(tmp1)
-        val y2 = softMax(tmp2)
+    fun gradient(t: List<Int>, x: Int) {
+        val ilf = inLayer.forward(x)
+        val olbSum = Array<Float>(inLayer.outputSize) {0f};
+        outLayers.indices.forEach {
+            val olf = softMax(outLayers[it].forward(ilf))
+            // ロス値の計算はしなくてもdYは計算可能(それがsoftmaxを使用する理由にもなっているらしい)
 
-        // ロス値の計算はしなくてもdYは計算可能(それがsoftmaxを使用する理由にもなっているらしい)
-
-        val dy1 = Array(y1.size) { i -> y1[i] - t[0][i] }
-        val dy2 = Array(y2.size) { i -> y2[i] - t[1][i] }
-        tmp1 = outLayer1.backward(dy1)
-        tmp2 = outLayer2.backward(dy2)
-        tmp = Array(tmp1.size) { i -> tmp1[i] + tmp2[i] }
-        inLayer.backward(tmp)
+            olf[t[it]] -= 1f
+            val olb = outLayers[it].backward(olf)
+            olbSum.indices.forEach { olbSum[it] += olb[it] }
+        }
+        inLayer.backward(olbSum)
     }
 
     fun wordVectorList(): Array<Array<Float>> {

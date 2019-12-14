@@ -3,11 +3,11 @@ package word2vec
 /**
  * 通常の全結合層(AffinLayer)のレイヤーから、バイアス値を除いたもの
  */
-class MatMulLayer2(
+class MatMulOneHotLayer(
     parameter: Array<Float>,
     val inputSize: Int,
     val outputSize: Int
-) : LearnableLayer2(parameter) {
+) : LearnableOneHotLayer(parameter) {
 
     fun weight(i: Int, j: Int) = parameter(i * outputSize + j)
 

@@ -1,15 +1,14 @@
 package word2vec
 
-import common.div
 import common.minusAssign
 import common.times
 
 /**
- * 学習を行う(=更新可能なパラメータを持つ)レイヤー
+ * 学習を行う(=更新可能なパラメータを持つ)one-hotレイヤー
  */
-abstract class LearnableLayer2(
+abstract class LearnableOneHotLayer(
         private val parameter: Array<Float>)   // このレイヤーの全てのパラメータ(重み値、バイアス値）
-    : Layer2() {
+    : OneHotLayer() {
     private var batchCount: Int = 0
 
     /**
