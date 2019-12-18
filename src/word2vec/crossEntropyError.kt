@@ -9,8 +9,8 @@ private const val DELTA = 1e-7f
  * @param y NNの結果のリスト
  * @param t 教師データのリスト
  */
-fun crossEntropyError2(y: Array<Float>, t: Int): Float {
-    return -ln(y[t] + DELTA) / y.size
+fun crossEntropyError(y: Array<Float>, ontHotT: Int): Float {
+    return -ln(y[ontHotT] + DELTA) / y.size
 }
 
 fun main() {
@@ -20,6 +20,6 @@ fun main() {
 }
 
 private fun test(y: Array<Float>, t: Int) {
-    val r = crossEntropyError2(y, t)
+    val r = crossEntropyError(y, t)
     println("$r")
 }

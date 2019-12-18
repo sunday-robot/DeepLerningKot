@@ -1,6 +1,5 @@
 package word2vec
 
-import common.crossEntropyError
 import common.softMax
 
 class SimpleSkipGram(
@@ -26,7 +25,7 @@ class SimpleSkipGram(
     fun loss(x: Int, t: List<Int>): Float {
         val y = predict(x)
         var l = 0f
-        y.indices.forEach { l += crossEntropyError2(y[it], t[it]) }
+        y.indices.forEach { l += crossEntropyError(y[it], t[it]) }
         return l;
     }
 
