@@ -49,12 +49,8 @@ fun main() {
                 log("${i}/${epochCount} - ${j + k}/${targetAndContextList.size}: calculating weight gradients.")
                 network.gradient(tc.context, tc.target)   // 重み値の微分値を求め、累積する
             }
-<<<<<<< HEAD
             optimizer.update(network)   // 重み値の微分値の累積値に従い、重み値を更新する
-=======
             log("${i}/${epochCount} - ${j}/${targetAndContextList.size}: optimizing weights.")
-            optimizer.update(network)   // ネ重み値の微分値の累積値に従い、重み値を更新する
->>>>>>> 45cbc0a0180ba5d1c3d67e71d635d3558e196839
         }
         var loss = 0f
         targetAndContextList.indices.forEach {

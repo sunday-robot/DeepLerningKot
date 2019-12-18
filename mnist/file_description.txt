@@ -1,0 +1,24 @@
+テスト用データ(10000個)
+	画像データ
+		t10k-images-idx3-ubyte.gz	 7,840,016byte
+	ラベルデータ
+		t10k-labels-idx1-ubyte.gz	    10,008byte
+学習用データ(60000個)
+	画像データ
+		train-images-idx3-ubyte.gz	47,040,016byte
+	ラベルデータ
+		train-labels-idx1-ubyte.gz	    60,008byte
+
+ラベルデータファイルフォーマット
+	fileId		uint	0x00000801固定
+	dataCount	uint	データの個数、テスト用データの場合は10000個、学習用データは60000個
+	labels		byte[]	ラベル(0x00-0x09)
+
+画像データファイルフォーマット
+	fileId		uint	0x00000803固定
+	dataCount	uint	データの個数、テスト用データの場合は10000個、学習用データは60000個
+	height		uint	画像データの高さ(MNISTの場合28)
+	width		uint	画像データの幅(MNISTの場合28)
+	intensity	ubyte[dataCount][height][width] 各ピクセルの値(0が白、255が黒)
+
+uintは、little endianではなく、big endianであることに注意‼
