@@ -40,14 +40,21 @@ fun main() {
     for (i in 0.until(epochCount)) {    // エポック数分のループ
         val trainDataIndices = createShuffledIndices(targetAndContextList.size) // 学習データのインデックス値をランダムに並べたリスト
         for (j in 0.until(targetAndContextList.size) step batchSize) {
+            log("${i}/${epochCount} - ${j}/${targetAndContextList.size}: initializing weight gradients.")
             network.reset() // ネットワークの重み値の微分値の累積値の０クリア
             val bs = min(batchSize, targetAndContextList.size - j)
             for (k in 0.until(bs)) {
                 val idx = trainDataIndices[j + k]
                 val tc = targetAndContextList[idx]
+                log("${i}/${epochCount} - ${j + k}/${targetAndContextList.size}: calculating weight gradients.")
                 network.gradient(tc.context, tc.target)   // 重み値の微分値を求め、累積する
             }
+<<<<<<< HEAD
             optimizer.update(network)   // 重み値の微分値の累積値に従い、重み値を更新する
+=======
+            log("${i}/${epochCount} - ${j}/${targetAndContextList.size}: optimizing weights.")
+            optimizer.update(network)   // ネ重み値の微分値の累積値に従い、重み値を更新する
+>>>>>>> 45cbc0a0180ba5d1c3d67e71d635d3558e196839
         }
         var loss = 0f
         targetAndContextList.indices.forEach {
