@@ -5,12 +5,12 @@ import common.log.log
 import kotlin.math.min
 
 fun main() {
-//    val wordVectorSize = 200    // 本家word2vecのデフォルト値は200次元とのこと
-    val wordVectorSize = 20
+    val wordVectorSize = 200    // 本家word2vecのデフォルト値は200次元とのこと
+//    val wordVectorSize = 20
 //    val wordVectorSize = 5
 //    val wordVectorSize = 2
-//    val windowSize = 5    // 本家word2vecのデフォルト値は5とのこと
-    val windowSize = 1
+    val windowSize = 5    // 本家word2vecのデフォルト値は5とのこと
+//    val windowSize = 1
     val batchSize = 300
 //    val batchSize = 30
 //    val batchSize = 3
@@ -49,8 +49,8 @@ fun main() {
                 log("${i}/${epochCount} - ${j + k}/${targetAndContextList.size}: calculating weight gradients.")
                 network.gradient(tc.context, tc.target)   // 重み値の微分値を求め、累積する
             }
-            optimizer.update(network)   // 重み値の微分値の累積値に従い、重み値を更新する
             log("${i}/${epochCount} - ${j}/${targetAndContextList.size}: optimizing weights.")
+            optimizer.update(network)   // 重み値の微分値の累積値に従い、重み値を更新する
         }
         var loss = 0f
         targetAndContextList.indices.forEach {
