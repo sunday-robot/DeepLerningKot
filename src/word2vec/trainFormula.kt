@@ -2,34 +2,25 @@ package word2vec
 
 import common.createShuffledIndices
 import common.log.log
+import kotlin.math.max
 import kotlin.math.min
 
 fun main() {
     val wordVectorSize = 2    // 本家word2vecのデフォルト値は200次元とのこと
-    val windowSize = 5    // 本家word2vecのデフォルト値は5とのこと
-//    val windowSize = 1
-    val batchSize = 300
-//    val batchSize = 30
-//    val batchSize = 3
+    val windowSize = 1    // 本家word2vecのデフォルト値は5とのこと
+    val batchSize = 10
     val epochCount = 10000
-//    val epochCount = 0
+    val vocabularySize = 19;
 
-    val wordList = createWordsFromTextFile("formulas.txt")
-
-    // テキストデータからvocabulary(単語とID(０オリジンのただの通し番号)の対応表)と、
-    // corpus(テキストデータを、ボキャブラリー内の単語のIDのリストにしたもの)を、作成する。
-    val (vocabulary, corpus) = createVocabularyAndCorpus(wordList)
-
-    println("語彙数 = ${vocabulary.size}")
-    println("単語数 = ${corpus.size}")
-
-    // 学習用データ(単語と、その手前及び後の単語のセットのセット)
-    val targetAndContextList = createTargetAndContextList(corpus, windowSize)
+    val targetAndContextList = mutableListOf<TargetAndContext>()
+    for (c1 in -9..9)
+        for (c2 in max(-9 - c1, -9)..min(9 - c1, 9))
+            targetAndContextList.add(TargetAndContext(c1 + c2 + 9, listOf(c1 + 9, c2 + 9)))
 
     // word2vecのニューラルネットワークおよびオプティマイザーを生成する
     np.random.reset(0L)
-    val network = createSimpleSkipGram(vocabulary.size, wordVectorSize, windowSize)
-    val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabulary.size, wordVectorSize, windowSize)
+    val network = createSimpleSkipGram(vocabularySize, wordVectorSize, windowSize)
+    val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabularySize, wordVectorSize, windowSize)
 
     // word2vecのニューラルネットワークの学習
     for (i in 0.until(epochCount)) {    // エポック数分のループ
@@ -59,9 +50,9 @@ fun main() {
     val wordVectorList = network.wordVectorList()
 
     // 単語ベクトルの値をコンソールに出力する。(Excelに取り込みやすいように、TSV形式で出力する)
-    for (i in 0.until(vocabulary.size)) {
-        print("${i}\t${vocabulary.word(i)}\t${vocabulary.count(i)}")
-        for (e in wordVectorList[i])
+    for (i in -9..9) {
+        print("${i}")
+        for (e in wordVectorList[i + 9])
             print("\t${e}")
         println()
     }
