@@ -14,7 +14,7 @@ class SimpleSkipGram(
         outLayers.forEach { it.reset() }
     }
 
-    private fun predict(x: Int): List<Array<Float>> {
+    fun predict(x: Int): List<Array<Float>> {
         val tmp = inLayer.evaluate(x)
         return List<Array<Float>>(outLayers.size) {
             val tmp1 = outLayers[it].evaluate(tmp)
