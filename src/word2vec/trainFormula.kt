@@ -11,7 +11,7 @@ fun main() {
     val windowSize = 1    // 本家word2vecのデフォルト値は5とのこと
     val batchSize = 10
     val epochCount = 10000
-    val maxValue = 2
+    val maxValue = 1
     val vocabularySize = 2 * maxValue + 1;
 
     val targetAndContextList = mutableListOf<TargetAndContext>()
@@ -20,8 +20,8 @@ fun main() {
             targetAndContextList.add(TargetAndContext(c1 + c2 + maxValue, listOf(c1 + maxValue, c2 + maxValue)))
 
     // word2vecのニューラルネットワークおよびオプティマイザーを生成する
-//    np.random.reset(0L)
-    np.random.reset(2L)
+    np.random.reset(0L)
+//    np.random.reset(1L)
     val network = createSimpleSkipGram(vocabularySize, wordVectorSize, windowSize)
     val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabularySize, wordVectorSize, windowSize)
 
