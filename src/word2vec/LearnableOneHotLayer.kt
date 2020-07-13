@@ -2,6 +2,7 @@ package word2vec
 
 import common.minusAssign
 import common.times
+import java.io.ObjectOutputStream
 
 /**
  * 学習を行う(=更新可能なパラメータを持つ)one-hotレイヤー
@@ -48,4 +49,8 @@ abstract class LearnableOneHotLayer(
 
 //    fun getAllParameterGradient() = parameterGradientSum!! / batchCount.toFloat()
     fun getAllParameterGradient() = parameterGradientSum!!
+
+    fun serialize(oos: ObjectOutputStream) {
+        oos.writeObject(parameter)
+    }
 }

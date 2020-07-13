@@ -6,6 +6,8 @@ import common.createShuffledIndices
 import common.log.log
 import mnist.MnistImage
 import mnist.convertUnsignedByteArrayToFloatArray
+import java.io.FileOutputStream
+import java.io.ObjectOutputStream
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -50,7 +52,14 @@ fun main() {
         }
         var loss = lossSum / testImages.size.toFloat()
         log("$i:$loss")
+        saveSnapshot(network, i + 1)
     }
+}
+
+fun saveSnapshot(network: TwoLayerNet, epochNo: Int) {
+    val oos = ObjectOutputStream(FileOutputStream("snapshot_" + epochNo))
+    network.serialize(oos)
+    oos.close()
 }
 
 fun convertToFloatArray(images: Array<MnistImage>) = Array(images.size) { i ->
@@ -65,17 +74,19 @@ fun convertToFloatArray(labels: Array<Byte>) = Array(labels.size) { i ->
  *
  */
 fun selectBatch(
-        images: Array<MnistImage>,
-        labels: Array<Byte>,
-        indices: Array<Int>,
-        batchSize: Int,
-        batchIndex: Int):
+    images: Array<MnistImage>,
+    labels: Array<Byte>,
+    indices: Array<Int>,
+    batchSize: Int,
+    batchIndex: Int
+):
         Array<Pair<Array<Float>, Array<Float>>> {
     val bs = min(batchSize, indices.size - batchSize)
     return Array<Pair<Array<Float>, Array<Float>>>(bs) { i ->
         val index = indices[batchIndex * batchSize + i]
         Pair(
-                convertUnsignedByteArrayToFloatArray(images[index].intensities),
-                createOneHotArray(labels[index], 10))
+            convertUnsignedByteArrayToFloatArray(images[index].intensities),
+            createOneHotArray(labels[index], 10)
+        )
     }
 }

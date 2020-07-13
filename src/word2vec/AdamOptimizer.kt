@@ -1,23 +1,42 @@
 package word2vec
 
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 // http://arxiv.org/abs/1412.6980v8
 // ADAMオプティマイザー
 class AdamOptimizer(
-        paramCount: Int,    // 重み値の個数
-        private val learningRate: Float = 0.001f,
-        private val beta1: Float = 0.9f,
-        private val beta2: Float = 0.999f) {
-    private var count: Int = 0
-    private val m = MutableList<Float>(paramCount) { 0f }
-    private val v = MutableList<Float>(paramCount) { 0f }
+    private val learningRate: Float,
+    private val beta1: Float,
+    private val beta2: Float,
+    private var count: Int,
+    private val m: MutableList<Float>,
+    private val v: MutableList<Float>
+) {
+    constructor(ois: ObjectInputStream) : this(
+        ois.readFloat(),
+        ois.readFloat(),
+        ois.readFloat(),
+        ois.readInt(),
+        ois.readObject() as MutableList<Float>,
+        ois.readObject() as MutableList<Float>
+    )
+
+    fun serialize(oos: ObjectOutputStream) {
+        oos.writeFloat(learningRate)
+        oos.writeFloat(beta1)
+        oos.writeFloat(beta2)
+        oos.writeInt(count)
+        oos.writeObject(m)
+        oos.writeObject(v)
+    }
 
     fun update(
-            params: Array<Float>,  // 更新対象の重み値のリスト
-            grads: Array<Float>) { // 重み値の傾きのリスト
-
+        params: Array<Float>,   // 更新対象の重み値のリスト
+        grads: Array<Float>     // 重み値の傾きのリスト
+    ) {
         count += 1
         val lr = learningRate * sqrt(1f - beta2.pow(count)) / (1f - beta1.pow(count))
 

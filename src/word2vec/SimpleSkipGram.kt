@@ -1,11 +1,27 @@
 package word2vec
 
 import common.softMax
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class SimpleSkipGram(
     val inLayer: MatMulOneHotLayer,
     val outLayers: Array<MatMulLayer>
 ) {
+    constructor(ois: ObjectInputStream) : this(
+        ois.readObject() as MatMulOneHotLayer,
+        Array<MatMulLayer>(ois.readInt()) {
+            ois.readObject() as MatMulLayer
+        })
+
+    fun serialize(oos: ObjectOutputStream) {
+        inLayer.serialize(oos)
+        oos.writeInt(outLayers.count())
+        outLayers.forEach {
+            it.serialize(oos)
+        }
+    }
+
     /**
      * 個々のバッチの処理前に呼び、内部変数を初期化する。
      */
@@ -31,7 +47,7 @@ class SimpleSkipGram(
 
     fun gradient(t: List<Int>, x: Int) {
         val ilf = inLayer.forward(x)
-        val olbSum = Array<Float>(inLayer.outputSize) {0f};
+        val olbSum = Array<Float>(inLayer.outputSize) { 0f };
         outLayers.indices.forEach {
             val olf = softMax(outLayers[it].forward(ilf))
             // ロス値の計算はしなくてもdYは計算可能(それがsoftmaxを使用する理由にもなっているらしい)

@@ -1,14 +1,15 @@
 package c5backpropergation
 
-import common.div
 import common.minusAssign
 import common.times
+import java.io.ObjectOutputStream
 
 /**
  * 学習を行う(=更新可能なパラメータを持つ)レイヤー
  */
 abstract class LearnableLayer(
-        private val parameter: Array<Float>)   // このレイヤーの全てのパラメータ(重み値、バイアス値）
+    private val parameter: Array<Float>
+)   // このレイヤーの全てのパラメータ(重み値、バイアス値）
     : Layer() {
     private var batchCount: Int = 0
 
@@ -30,7 +31,7 @@ abstract class LearnableLayer(
         batchCount++
     }
 
-    protected fun parameter(i:Int) = parameter[i]
+    protected fun parameter(i: Int) = parameter[i]
 
     protected fun addParameterGradient(i: Int, gradient: Float) {
         parameterGradientSum!![i] += gradient
@@ -47,6 +48,10 @@ abstract class LearnableLayer(
 
     fun getAllParameter() = parameter
 
-//    fun getAllParameterGradient() = parameterGradientSum!! / batchCount.toFloat()
+    //    fun getAllParameterGradient() = parameterGradientSum!! / batchCount.toFloat()
     fun getAllParameterGradient() = parameterGradientSum!!
+
+    fun serialize(oos: ObjectOutputStream) {
+        oos.writeObject(parameter)
+    }
 }

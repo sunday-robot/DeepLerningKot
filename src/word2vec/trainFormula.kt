@@ -11,17 +11,23 @@ fun main() {
     val windowSize = 1    // 本家word2vecのデフォルト値は5とのこと
     val batchSize = 10
     val epochCount = 10000
+    val minValue = -1
     val maxValue = 1
-    val vocabularySize = 2 * maxValue + 1;
+    val vocabularySize = -minValue + 1 + maxValue;
 
     val targetAndContextList = mutableListOf<TargetAndContext>()
-    for (c1 in -maxValue..maxValue)
-        for (c2 in max(-maxValue - c1, -maxValue)..min(maxValue - c1, maxValue))
-            targetAndContextList.add(TargetAndContext(c1 + c2 + maxValue, listOf(c1 + maxValue, c2 + maxValue)))
+    for (context1 in minValue..maxValue)
+        for (context2 in max(minValue - context1, minValue)..min(maxValue - context1, maxValue)) {
+            val target = context1 + context2
+            targetAndContextList.add(
+                TargetAndContext(
+                    target - minValue, listOf(context1 - minValue, context2 - minValue)
+                )
+            )
+        }
 
     // word2vecのニューラルネットワークおよびオプティマイザーを生成する
-    np.random.reset(0L)
-//    np.random.reset(1L)
+    np.random.reset(1L)
     val network = createSimpleSkipGram(vocabularySize, wordVectorSize, windowSize)
     val optimizer = createSimpleSkipGramAndAdamOptimizer(vocabularySize, wordVectorSize, windowSize)
 
@@ -50,8 +56,8 @@ fun main() {
     }
 
     // (debug)出来上がったNNで、推論を行う。
-    for (i in -maxValue..maxValue) {
-        val p = network.predict(i + maxValue)
+    for (i in minValue..maxValue) {
+        val p = network.predict(i - minValue)
         println("${i}->")
         for (c in p) {
             printArray(c)
@@ -63,9 +69,9 @@ fun main() {
     val wordVectorList = network.wordVectorList()
 
     // 単語ベクトルの値をコンソールに出力する。(Excelに取り込みやすいように、TSV形式で出力する)
-    for (i in -maxValue..maxValue) {
-        print("${i}")
-        for (e in wordVectorList[i + maxValue])
+    for (word in minValue..maxValue) {
+        print("${word}")
+        for (e in wordVectorList[word - minValue])
             print("\t${e}")
         println()
     }

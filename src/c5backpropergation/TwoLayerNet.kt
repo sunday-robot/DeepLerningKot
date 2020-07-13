@@ -2,17 +2,34 @@ package c5backpropergation
 
 import common.crossEntropyError
 import common.softMax
-import java.io.Serializable
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
-class TwoLayerNet : Serializable {
-    private val weightStandardDeviation = 0.01f
-    private val inputSize = 28 * 28
-    private val hiddenSize = 50
-    private val outputSize = 10
-
-    private val affineLayer1 = createAffineLayer(inputSize, hiddenSize, weightStandardDeviation)
+class TwoLayerNet(
+    private val affineLayer1: AffineLayer,
+    private val affineLayer2: AffineLayer
+) {
     private val reluLayer = ReluLayer()
-    private val affineLayer2 = createAffineLayer(hiddenSize, outputSize, weightStandardDeviation)
+
+    constructor(
+        weightStandardDeviation: Float = 0.01f,
+        inputSize: Int = 28 * 28,
+        hiddenSize: Int = 50,
+        outputSize: Int = 10
+    ) : this(
+        createAffineLayer(inputSize, hiddenSize, weightStandardDeviation),
+        createAffineLayer(hiddenSize, outputSize, weightStandardDeviation)
+    )
+
+    constructor(ois: ObjectInputStream) : this(
+        ois.readObject() as AffineLayer,
+        ois.readObject() as AffineLayer
+    )
+
+    fun serialize(oos: ObjectOutputStream) {
+        affineLayer1.serialize(oos)
+        affineLayer2.serialize(oos)
+    }
 
     /**
      * 個々のバッチの処理前に呼び、内部変数を初期化する。
@@ -39,7 +56,7 @@ class TwoLayerNet : Serializable {
         affineLayer1.backward(tmp)
     }
 
-    fun layers() : Array<LearnableLayer> {
+    fun layers(): Array<LearnableLayer> {
         return arrayOf(affineLayer1, affineLayer2)
     }
 
