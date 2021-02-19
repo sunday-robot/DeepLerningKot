@@ -1,7 +1,5 @@
 package c5backpropergation
 
-import common.minusAssign
-import common.times
 import java.io.ObjectOutputStream
 
 /**
@@ -35,15 +33,6 @@ abstract class LearnableLayer(
 
     protected fun addParameterGradient(i: Int, gradient: Float) {
         parameterGradientSum!![i] += gradient
-    }
-
-    /**
-     * 重み値を更新する。
-     */
-    fun update_(learningRate: Float) {
-        val k = learningRate / batchCount.toFloat()
-        parameter -= k * parameterGradientSum!!
-        parameterGradientSum = null
     }
 
     fun getAllParameter() = parameter
